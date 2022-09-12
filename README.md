@@ -1,11 +1,15 @@
-### 目的
-100本ノックを新しいMACで行うために、docker環境を構築  
-`docker-compose up -build`   だけで実行できるようになるか検証  
-*** 
-ディレクトリに入れるもの  
+### やりたいこと
+1. 100本ノックを居室用macで行うために、docker環境を構築。  
+2. その際に、matplotlibでの日本語表記の豆腐問題も回避したい。   
 
-- GitHubに100本ノック用ファイル
-- Dockerfile
+以上が居室用PCで、`docker-compose up -build` コマンドだけで実行できるか検証  
+*** 
+## 1. 100本ノック用のdocker環境を構築
+以前作成したanaconda環境を使用
+### ディレクトリに入れるもの  
+
+- 100本ノック用ファイル
+- Dockerfile(日本語表記対応前) 中身↓
 ```
 FROM continuumio/anaconda3:latest
 
@@ -23,13 +27,15 @@ ENTRYPOINT ["jupyter-lab", "--ip=0.0.0.0", "--port=8888", "--no-browser" , "--al
 
 CMD ["--notebook-dir=/opt"]
 ```
-- compose.yml
-- requirements.txt(ライブラリインストール用)  
+- docker-compose.yml
 
 全てGitHubにあげる  
 ***  
-## 日本語表記ができるように、パッケージインストールする(手作業ver)  
+## 2.日本語表記ができるように、パッケージインストールする(手作業ver)  
 [参考URL](http://oyaryo.blogspot.com/2018/03/matplotlib.html)  
+
+インストールするパッケージ:ipaexfont  
+
 <ターミナルでの作業>  
 - jupyterを立ち上げながらbashを扱いたいとき  
 1.command+T   ターミナルの切り替え  
@@ -50,7 +56,7 @@ CMD ["--notebook-dir=/opt"]
 ./conda/lib/python3.9/site-packages/matplotlib/mpl-data/matplotlibrc
 ```  
 3.vimで編集する  
-`#vim ./conda/lib/python3.9/site-packages/matplotlib/mpl-data/matplotlibrc`  
+`#vim ./conda/lib/python3.9/site-packages/matplotlib/mpl-data/matplotlibrc`  中身↓
 ```
 ## settings for axes and ticks.  Special text sizes can be defined
 ## relative to font.size, using the following values: xx-small, x-small,
@@ -65,9 +71,7 @@ CMD ["--notebook-dir=/opt"]
 
 #font.serif:      DejaVu Serif, Bitstream Vera Serif, Computer Modern Roman, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 #font.sans-serif: DejaVu Sans, Bitstream Vera Sans, Computer Modern Sans Serif, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
-#font.cursive:    Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, Comic Neue, Comic Sans MS, cursive
-#font.fantasy:    Chicago, Charcoal, Impact, Western, Humor Sans, xkcd, fantasy
-#font.monospace:  DejaVu Sans Mono, Bitstream Vera Sans Mono, Computer Modern Typewriter, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
+
 
 ```
 - font.family:  IPAexGothic     #外して変更  
@@ -81,15 +85,15 @@ CMD ["--notebook-dir=/opt"]
 from matplotlib import rcParams
 rcParams['font.family'] = 'IPAexGothic'
 ```  
-可視化の前に追記  
+以上可視化の前に追記  
 ***
 ## 日本語表記ができるように、パッケージインストールする(Dockerfileに書くver)  
 
 [参考URL](https://qiita.com/nassy20/items/f67c3ce196558b14dfca)  
 [参考URL](https://yukr.hatenablog.com/entry/2020/09/06/202539)  
 
-まずURLを参考に、pathやパッケージのバージョンを微妙に変更して書いた。  
-< before >  
+まず上記URLを参考に、pathやパッケージのバージョンを微妙に変更して書いた。  
+
 ```
 FROM continuumio/anaconda3:latest
 
@@ -129,6 +133,14 @@ RUN apt  update && \
 - unzipがない  
 apt -y install curl &&\
 apt -y install zip 追記  
-- './.cache': No such file or directory パスが違う  
-`print(matplotlib.get_cachedir())`コマンドで取得したパス（/root/.cache/matplotlib）を入力してもできない・・・
+- './.cache': No such file or directory   
+`print(matplotlib.get_cachedir())`コマンドで取得したパス（/root/.cache/matplotlib）を入力してもできない・・・  
+コメントアウトしてbuildしたら立ち上がった。  
+
 →すでに手作業で消去してしまっているからかもしれないので、別環境でdockerを立ち上げてみる  
+
+自宅PC(Windows)で検証
+コメントアウトのまま立ち上がり、日本語表記にも対応できていた。
+
+
+cacheの削除をしなくても対応できた理由が未だわからないけど、環境構築できた！！
