@@ -5,7 +5,9 @@
 以上が居室用PCで、`docker-compose up -build` コマンドだけで実行できるか検証  
 *** 
 ## 1. 100本ノック用のdocker環境を構築
-以前作成したanaconda環境を使用
+在宅用PC (macOS Monterey バージョン12.5.1 M1 2020)で作成する。   
+Dockerfile : 以前作成したanaconda環境を使用
+
 ### ディレクトリに入れるもの  
 
 - 100本ノック用ファイル
@@ -27,8 +29,19 @@ ENTRYPOINT ["jupyter-lab", "--ip=0.0.0.0", "--port=8888", "--no-browser" , "--al
 
 CMD ["--notebook-dir=/opt"]
 ```
-- docker-compose.yml
-
+- docker-compose.yml  
+```
+version: '3'
+services: 
+    anaconda:
+        build: .
+        volumes:
+            - '.:/opt/100knock-process-visualization'
+        ports:
+            - '8888:8888'
+        tty: true
+        platform: linux/amd64
+```
 全てGitHubにあげる  
 ***  
 ## 2.日本語表記ができるように、パッケージインストールする(手作業ver)  
@@ -135,12 +148,12 @@ apt -y install curl &&\
 apt -y install zip 追記  
 - './.cache': No such file or directory   
 `print(matplotlib.get_cachedir())`コマンドで取得したパス（/root/.cache/matplotlib）を入力してもできない・・・  
-コメントアウトしてbuildしたら立ち上がった。  
+コメントアウトしてbuildしたら立ち上がった。→他にインストール等したことがない場合、そもそもcacheファイルが作られていないのでは・・・？  
 
-→すでに手作業で消去してしまっているからかもしれないので、別環境でdockerを立ち上げてみる  
+## 自宅PC(Windows)で検証  
+- 変更箇所  
+  ・マウント元のファイルパス
+  ・（M1チップではない場合）
+　　　docker-compose.yml の　platform行をコメントアウトする必要あり。  
 
-自宅PC(Windows)で検証
-コメントアウトのまま立ち上がり、日本語表記にも対応できていた。
-
-
-cacheの削除をしなくても対応できた理由が未だわからないけど、環境構築できた！！
+立ち上がり、日本語表記にも対応できていた。
