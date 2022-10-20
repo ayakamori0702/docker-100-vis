@@ -22,9 +22,9 @@ RUN echo "font.family : IPAexGothic" >>  /opt/conda/lib/python3.9/site-packages/
 
 WORKDIR /opt
 
-EXPOSE 8888
+EXPOSE 9999
 
-ENTRYPOINT ["jupyter-lab", "--ip=0.0.0.0", "--port=8888", "--no-browser" , "--allow-root", "--NotebookApp.token=''"]
+ENTRYPOINT ["jupyter-lab", "--ip=0.0.0.0", "--port=9999", "--no-browser" , "--allow-root", "--NotebookApp.token=''"]
 
 CMD ["--notebook-dir=/opt"]
 

@@ -5,6 +5,6 @@ services:
         volumes:
             - '.:/opt/100knock-process-visualization'
         ports:
-            - '8888:8888'
+            - '9999:9999'
         tty: true
         platform: linux/amd64

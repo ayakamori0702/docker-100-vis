@@ -1,6 +1,7 @@
 ### やりたいこと
 1. 100本ノックを居室用macで行うために、docker環境を構築。  
-2. その際に、matplotlibでの日本語表記の豆腐問題も回避したい。   
+2. その際に、matplotlibでの日本語表記の豆腐問題も回避したい。 
+3. (追加)port8888 は使用中のことも多いため、別のportからサーバーアクセスしてみたい。    
 
 以上が居室用PCで、`docker-compose up -build` コマンドだけで実行できるか検証  
 *** 
@@ -11,7 +12,7 @@ Dockerfile : 以前作成したanaconda環境を使用
 ### ディレクトリに入れるもの  
 
 - 100本ノック用ファイル
-- Dockerfile(日本語表記対応前) 中身↓
+- Dockerfile(日本語表記,port対応前) 中身↓
 ```
 FROM continuumio/anaconda3:latest
 
@@ -101,6 +102,7 @@ rcParams['font.family'] = 'IPAexGothic'
 以上可視化の前に追記  
 ***
 ## 日本語表記ができるように、パッケージインストールする(Dockerfileに書くver)  
+### ついでにポート番号も2箇所変更する（<span style="color: red; ">9999</span>）
 
 [参考URL](https://qiita.com/nassy20/items/f67c3ce196558b14dfca)  
 [参考URL](https://yukr.hatenablog.com/entry/2020/09/06/202539)  
@@ -129,13 +131,32 @@ RUN rm -r ./.cache
 
 WORKDIR /opt
 
-EXPOSE 8888
+EXPOSE 9999
 
-ENTRYPOINT ["jupyter-lab", "--ip=0.0.0.0", "--port=8888", "--no-browser" , "--allow-root", "--NotebookApp.token=''"]
+ENTRYPOINT ["jupyter-lab", "--ip=0.0.0.0", "--port=9999", "--no-browser" , "--allow-root", "--NotebookApp.token=''"]
 
 CMD ["--notebook-dir=/opt"]
 
 ```  
+
+
+
+### docker-compose.ymlのポート番号も１箇所変更する（<span style="color: red; ">9999</span>）
+```
+version: '3'
+services: 
+    anaconda:
+        build: .
+        volumes:
+            - '.:/opt/100knock-process-visualization'
+        ports:
+            - '9999:9999'
+        tty: true
+        platform: linux/amd64
+```
+
+
+
 `docker-compose up --build`実行  
 
 <続出したエラー一覧>  
